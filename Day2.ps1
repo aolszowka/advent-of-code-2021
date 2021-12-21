@@ -10,19 +10,22 @@ function Invoke-Dive {
     process {
         [System.Drawing.Point]$currentPosition = [System.Drawing.Point]::new(0, 0)
 
+        [int]$aim = 0
+
         foreach ($command in $Commands) {
             [string[]]$splitCommand = $command.Split(' ')
             [int]$distance = [int]::Parse($splitCommand[1])
 
             switch ($splitCommand[0]) {
                 'forward' {
-                    $currentPosition.X = $currentPosition.X + $distance
+                    $currentPosition.X += $distance
+                    $currentPosition.Y += $aim * $distance
                 }
                 'down' {
-                    $currentPosition.Y = $currentPosition.Y + $distance
+                    $aim = $aim + $distance
                 }
                 'up' {
-                    $currentPosition.Y = $currentPosition.Y - $distance
+                    $aim = $aim - $distance
                 }
                 Default {
                     Write-Error -Message "Unknown Command $($splitCommand[0])" 
