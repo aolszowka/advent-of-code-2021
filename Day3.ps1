@@ -27,30 +27,30 @@ function Get-Report {
         }
     }
 
-    # Calculate the Gamma and epislon Rate
+    # Calculate the Gamma and epsilon Rate
     $midPoint = [System.Math]::Floor($DiagnosticReports.Length / 2)
     [System.Text.StringBuilder]$gammaRateString = [System.Text.StringBuilder]::new()
-    [System.Text.StringBuilder]$epislonRateString = [System.Text.StringBuilder]::new()
+    [System.Text.StringBuilder]$epsilonRateString = [System.Text.StringBuilder]::new()
 
 
     for ($i = 0; $i -lt $numberOfBits; $i++) {
         if ($frequencyTable[$i] -gt $midPoint) {
             $gammaRateString.Append('1') | Out-Null
-            $epislonRateString.Append('0') | Out-Null
+            $epsilonRateString.Append('0') | Out-Null
         }
         else {
             $gammaRateString.Append('0') | Out-Null
-            $epislonRateString.Append('1') | Out-Null
+            $epsilonRateString.Append('1') | Out-Null
         }
     }
 
     $gammaRate = [System.Convert]::ToInt32($gammaRateString.ToString(), 2)
-    $epislonRate = [System.Convert]::ToInt32($epislonRateString.ToString(), 2)
+    $epsilonRate = [System.Convert]::ToInt32($epsilonRateString.ToString(), 2)
 
     Write-Verbose "Gamma Rate $($gammaRateString.ToString()) ($gammaRate)"
-    Write-Verbose "Epislon Rate $($epislonRateString.ToString()) ($epislonRate)"
+    Write-Verbose "Epsilon Rate $($epsilonRateString.ToString()) ($epsilonRate)"
 
-    $powerConsumption = $gammaRate * $epislonRate
+    $powerConsumption = $gammaRate * $epsilonRate
     $powerConsumption
 }
 
