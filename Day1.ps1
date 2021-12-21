@@ -21,7 +21,7 @@ function Measure-LargerThanPrevious {
                     $currentWindowSum += $Inputs[$i + $j]
                 }
                 else {
-                    $canWindow = $falses
+                    $canWindow = $false
                 }
             }
 
