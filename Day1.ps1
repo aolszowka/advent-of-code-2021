@@ -11,7 +11,7 @@ function Measure-LargerThanPrevious {
         $slidingWindowSize = 3
         $previousWindowSum = -1
         $firstWindow = $true
-        $canWindow = $true;
+        $canWindow = $true
 
         # Now enumerate though each one
         for ($i = 0; $i -lt $Inputs.Count; $i++) {
