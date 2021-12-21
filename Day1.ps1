@@ -8,22 +8,40 @@ function Measure-LargerThanPrevious {
     )
     process {
         $measurementsLargerThanPrevious = 0
-
-        # We special case the first value to do nothing
-        Write-Verbose -Message "$($Inputs[0]) (N/A - no previous measurement)"
+        $slidingWindowSize = 3
+        $previousWindowSum = -1
+        $firstWindow = $true
+        $canWindow = $true
 
         # Now enumerate though each one
-        for ($i = 1; $i -lt $Inputs.Count; $i++) {
-            if ($Inputs[$i] -gt $Inputs[$i - 1]) {
-                Write-Verbose -Message "$($Inputs[$i]) (increased)"
-                $measurementsLargerThanPrevious++
+        for ($i = 0; $i -lt $Inputs.Count; $i++) {
+            $currentWindowSum = 0
+            for ($j = 0; $j -lt $slidingWindowSize; $j++) {
+                if ($i + $j -lt $Inputs.Count) {
+                    $currentWindowSum += $Inputs[$i + $j]
+                }
+                else {
+                    $canWindow = $false
+                }
             }
-            elseif ($Inputs[$i] -eq $Inputs[$i - 1]) {
-                # The specification didn't say what to do in this scenario? Be silent?
-                Write-Verbose "$($Inputs[$i]) (no change)"
-            }
-            else {
-                Write-Verbose -Message "$($Inputs[$i]) (decreased)"
+
+            if ($canWindow) {
+                if ($firstWindow) {
+                    $firstWindow = $false
+                    Write-Verbose -Message "$([Char]($i + 65)): $currentWindowSum (N/A - no previous sum)"
+                }
+                elseif ($currentWindowSum -gt $previousWindowSum) {
+                    Write-Verbose -Message "$([Char]($i + 65)): $currentWindowSum (increased)"
+                    $measurementsLargerThanPrevious++
+                }
+                elseif ($currentWindowSum -eq $previousWindowSum) {
+                    Write-Verbose "$([Char]($i + 65)): $currentWindowSum (no change)"
+                }
+                else {
+                    Write-Verbose -Message "$([Char]($i + 65)): $currentWindowSum (decreased)"
+                }
+
+                $previousWindowSum = $currentWindowSum
             }
         }
 
@@ -43,5 +61,6 @@ $inputValues = @(
     260,
     263
 )
+#$inputValues = Get-Content -Path "$PSScriptRoot\input.txt"
 
 Measure-LargerThanPrevious -Inputs $inputValues -Verbose
