@@ -98,7 +98,7 @@ function Get-LifeSupport {
                         Write-Verbose -Message "0 was the most common bit in position $currentBit; Removed $elementsRemoved from the current list"
                     }
                     else {
-                        # Both 1 and 0 are distributed equality; keep elements with a 1 in this position
+                        # Both 1 and 0 are distributed equality; keep elements with a 0 in this position
                         $elementsRemoved = $currentTable.RemoveAll( { param($element) $element.Substring($currentBit, 1) -ne 0 })
                         Write-Verbose -Message "0 and 1 were found equality in position $currentBit; Removed $elementsRemoved from the current list"
                     }
