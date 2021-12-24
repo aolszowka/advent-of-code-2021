@@ -130,8 +130,26 @@ function Test-BingoCard {
         [PSCustomObject]@{
             IsBingo      = $isBingo
             BingoNumbers = $bingoNumbers
-            LastCalled = $CalledNumbers[$CalledNumbers.Length-1]
+            LastCalled   = $CalledNumbers[$CalledNumbers.Length - 1]
         }
+    }
+}
+
+function Get-BingoScore {
+    [CmdletBinding()]
+    param (
+        [string[]]$CalledNumbers,
+        [string[]]$BingoCard,
+        [string]$LastCalledNumber
+    )
+    process {
+        [System.Collections.Generic.HashSet[string]]$uncalledNumbers = [System.Collections.Generic.HashSet[string]]::new($BingoCard)
+        [int]$lastCalledNumberInt = [int]::Parse($LastCalledNumber)
+
+        $uncalledNumbers.ExceptWith($CalledNumbers)
+        $unmarkedNumberSum = ($uncalledNumbers | ForEach-Object { [int]::Parse($_) } | Measure-Object -Sum).Sum
+        $score = $unmarkedNumberSum * $lastCalledNumberInt
+        $score
     }
 }
 
@@ -155,6 +173,7 @@ function Invoke-Bingo {
                 if ($cardIsWinner.IsBingo) {
                     Write-Output -InputObject "Bingo Numbers: $($cardIsWinner.BingoNumbers); Last Called: $($cardIsWinner.LastCalled)"
                     Out-BingoCard -CalledNumbers $calledNumbers.ToArray() -BingoCard $bingoCard
+                    Get-BingoScore -CalledNumbers $calledNumbers.ToArray() -BingoCard $bingoCard -LastCalledNumber $($cardIsWinner.LastCalled)
                     $winnerDeclared = $true
                 }
                 Write-Verbose -Message ""
