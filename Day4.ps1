@@ -162,40 +162,43 @@ function Invoke-Bingo {
     process {
         $bingoInputs = Get-BingoInputs -Path $Path
 
-        $winnerDeclared = $false
-        [System.Collections.Generic.List[string]]$calledNumbers = [System.Collections.Generic.List[string]]::new()
-        foreach ($calledNumber in $bingoInputs.NumbersToCall) {
-            $calledNumbers.Add($calledNumber) | Out-Null
-            Write-Verbose -Message "Calling Number $calledNumber"
-            Write-Verbose -Message "Called Numbers: $calledNumbers"
-            foreach ($bingoCard in $bingoInputs.BingoCards) {
-                $cardIsWinner = Test-BingoCard -CalledNumbers $calledNumbers.ToArray() -BingoCard $bingoCard
-                if ($cardIsWinner.IsBingo) {
-                    Write-Output -InputObject "Bingo Numbers: $($cardIsWinner.BingoNumbers); Last Called: $($cardIsWinner.LastCalled)"
-                    Out-BingoCard -CalledNumbers $calledNumbers.ToArray() -BingoCard $bingoCard
-                    Get-BingoScore -CalledNumbers $calledNumbers.ToArray() -BingoCard $bingoCard -LastCalledNumber $($cardIsWinner.LastCalled)
-                    $winnerDeclared = $true
-                }
-                Write-Verbose -Message ""
-                Write-Verbose -Message "Bingo Card is a Winner: $($cardIsWinner.IsBingo)"
-                Write-Verbose -Message "`r`n$(Out-BingoCard -CalledNumbers $calledNumbers.ToArray() -BingoCard $bingoCard)"
-            }
-            if ($winnerDeclared) {
-                break
-            }
-        }
+        # $winnerDeclared = $false
+        # [System.Collections.Generic.List[string]]$calledNumbers = [System.Collections.Generic.List[string]]::new()
+        # foreach ($calledNumber in $bingoInputs.NumbersToCall) {
+        #     $calledNumbers.Add($calledNumber) | Out-Null
+        #     Write-Verbose -Message "Calling Number $calledNumber"
+        #     Write-Verbose -Message "Called Numbers: $calledNumbers"
+        #     foreach ($bingoCard in $bingoInputs.BingoCards) {
+        #         $cardIsWinner = Test-BingoCard -CalledNumbers $calledNumbers.ToArray() -BingoCard $bingoCard
+        #         if ($cardIsWinner.IsBingo) {
+        #             Write-Output -InputObject "Bingo Numbers: $($cardIsWinner.BingoNumbers); Last Called: $($cardIsWinner.LastCalled)"
+        #             Out-BingoCard -CalledNumbers $calledNumbers.ToArray() -BingoCard $bingoCard
+        #             Get-BingoScore -CalledNumbers $calledNumbers.ToArray() -BingoCard $bingoCard -LastCalledNumber $($cardIsWinner.LastCalled)
+        #             $winnerDeclared = $true
+        #         }
+        #         Write-Verbose -Message ""
+        #         Write-Verbose -Message "Bingo Card is a Winner: $($cardIsWinner.IsBingo)"
+        #         Write-Verbose -Message "`r`n$(Out-BingoCard -CalledNumbers $calledNumbers.ToArray() -BingoCard $bingoCard)"
+        #     }
+        #     if ($winnerDeclared) {
+        #         break
+        #     }
+        # }
 
-        # # Horizitonal Bingo
-        # [string[]]$numbersToCall = @('7', '4', '9', '5', '11', '17', '23', '2', '0', '14', '21', '24')
-        # [System.Collections.Generic.HashSet[string]]$calledNumbers = [System.Collections.Generic.HashSet[string]]::new($numbersToCall)
-        # Out-BingoCard -CalledNumbers $calledNumbers -BingoCard $bingoInputs.BingoCards[2]
-        # Test-BingoCard -CalledNumbers $numbersToCall -BingoCard $bingoInputs.BingoCards[2]
+        # Test Cases to validate
+        # Horizitonal Bingo
+        [string[]]$bingoCard = @('14','21','17','24','4','10','16','15','9','19','18','8','23','26','20','22','11','13','6','5','2','0','12','3','7')
+        [string[]]$numbersToCall = @('7', '4', '9', '5', '11', '17', '23', '2', '0', '14', '21', '24')
+        Out-BingoCard -CalledNumbers $numbersToCall -BingoCard $bingoCard
+        Test-BingoCard -CalledNumbers $numbersToCall -BingoCard $bingoCard
+        Get-BingoScore -CalledNumbers $numbersToCall -BingoCard $bingoCard -LastCalledNumber $($numbersToCall[$numbersToCall.Length-1])
 
-        # # Vertical Bingo
-        # [string[]]$numbersToCall = @('4', '19', '20', '5', '7')
-        # [System.Collections.Generic.HashSet[string]]$calledNumbers = [System.Collections.Generic.HashSet[string]]::new($numbersToCall)
-        # Out-BingoCard -CalledNumbers $calledNumbers -BingoCard $bingoInputs.BingoCards[2]
-        # Test-BingoCard -CalledNumbers $numbersToCall -BingoCard $bingoInputs.BingoCards[2]
+        # Vertical Bingo
+        [string[]]$bingoCard = @('14','21','17','24','4','10','16','15','9','19','18','8','23','26','20','22','11','13','6','5','2','0','12','3','7')
+        [string[]]$numbersToCall = @('4', '19', '20', '5', '7')
+        Out-BingoCard -CalledNumbers $numbersToCall -BingoCard $bingoCard
+        Test-BingoCard -CalledNumbers $numbersToCall -BingoCard $bingoCard
+        Get-BingoScore -CalledNumbers $numbersToCall -BingoCard $bingoCard -LastCalledNumber $($numbersToCall[$numbersToCall.Length-1])
     }
 }
 
