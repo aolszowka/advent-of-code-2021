@@ -1,6 +1,7 @@
 # Copyright (c) 2021 Ace Olszowka
 # https://adventofcode.com/2021/day/6
 # How many lanternfish would there be after 80 days?
+# How many lanternfish would there be after 256 days?
 
 function Invoke-Simulation {
     [CmdletBinding()]
@@ -59,7 +60,7 @@ function Invoke-Simulation {
 }
 
 # Sanity Check for Sample Input 18 Days: 26 Fish
-#Invoke-Simulation -StartingSchool @(3, 4, 3, 1, 2) -SimulationDays 18 -Verbose
+#Invoke-Simulation -StartingSchool @(3, 4, 3, 1, 2) -SimulationDays 18
 
 #Sanity Check for Sample Input 80 Days: 5934 Fish
 #Invoke-Simulation -StartingSchool @(3, 4, 3, 1, 2) -SimulationDays 80
@@ -68,5 +69,6 @@ function Invoke-Simulation {
 #Invoke-Simulation -StartingSchool @(3, 4, 3, 1, 2) -SimulationDays 256
 
 # Perform Actual Input 80 Days: ???
+# Perform Actual Input 256 Days: ???
 $startingSchool = @()
 Invoke-Simulation -StartingSchool $startingSchool -SimulationDays 256
