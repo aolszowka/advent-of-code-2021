@@ -27,33 +27,33 @@ function Invoke-Simulation {
                 [PSCustomObject[]]$School
             )
             process {
-                [string]::Join(',', $($School | Select-Object -ExpandProperty RemainingDays))
+                [string]::Join(',', $($School))
             }
         }
     }
     process {
-        [System.Collections.Generic.List[PSCustomObject]]$school = [System.Collections.Generic.List[PSCustomObject]]::new()
+        [System.Collections.Generic.List[int]]$school = [System.Collections.Generic.List[int]]::new()
         # Initialize our School
         foreach ($fish in $StartingSchool) {
-            $school.Add($(New-LanternFish -RemainingDays $fish))
+            $school.Add($fish)
         }
 
         Write-Verbose -Message "Initial state: $(Out-VisualizeSchool -School $school.ToArray())"
         for ($day = 1; $day -le $SimulationDays; $day++) {
             $newFishToAdd = 0
-            foreach($fish in $school) {
-                if($fish.RemainingDays -eq 0) {
-                    $fish.RemainingDays = 6
+            for ($i = 0; $i -lt $school.Count; $i++) {
+                if ($school[$i] -eq 0) {
+                    $school[$i] = 6
                     $newFishToAdd++
                 }
                 else {
-                    $fish.RemainingDays = $fish.RemainingDays - 1
+                    $school[$i] = $school[$i] - 1
                 }
             }
 
             # Add any new fish at the end of the day
             for ($i = 0; $i -lt $newFishToAdd; $i++) {
-                $school.Add($(New-LanternFish -RemainingDays 8))
+                $school.Add( 8)
             }
 
             Write-Verbose -Message "After $("$day".PadLeft(2)) days: $(Out-VisualizeSchool -School $school.ToArray())"
@@ -65,11 +65,14 @@ function Invoke-Simulation {
 }
 
 # Sanity Check for Sample Input 18 Days: 26 Fish
-# Invoke-Simulation -StartingSchool @(3, 4, 3, 1, 2) -SimulationDays 16
+Invoke-Simulation -StartingSchool @(3, 4, 3, 1, 2) -SimulationDays 18 -Verbose
 
 #Sanity Check for Sample Input 80 Days: 5934 Fish
-#Invoke-Simulation -StartingSchool @(3, 4, 3, 1, 2) -SimulationDays 80
+Invoke-Simulation -StartingSchool @(3, 4, 3, 1, 2) -SimulationDays 80
+
+#Sanity Check for Sample Input 256 Days: 26984457539 Fish
+Invoke-Simulation -StartingSchool @(3, 4, 3, 1, 2) -SimulationDays 256
 
 # Perform Actual Input 80 Days: ???
-$startingSchool = @()
-Invoke-Simulation -StartingSchool $startingSchool -SimulationDays 80
+#$startingSchool = @(4,1,1,4,1,1,1,1,1,1,1,1,3,4,1,1,1,3,1,3,1,1,1,1,1,1,1,1,1,3,1,3,1,1,1,5,1,2,1,1,5,3,4,2,1,1,4,1,1,5,1,1,5,5,1,1,5,2,1,4,1,2,1,4,5,4,1,1,1,1,3,1,1,1,4,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,5,1,1,2,1,1,1,1,1,1,1,2,4,4,1,1,3,1,3,2,4,3,1,1,1,1,1,2,1,1,1,1,2,5,1,1,1,1,2,1,1,1,1,1,1,1,2,1,1,4,1,5,1,3,1,1,1,1,1,5,1,1,1,3,1,2,1,2,1,3,4,5,1,1,1,1,1,1,5,1,1,1,1,1,1,1,1,3,1,1,3,1,1,4,1,1,1,1,1,2,1,1,1,1,3,2,1,1,1,4,2,1,1,1,4,1,1,2,3,1,4,1,5,1,1,1,2,1,5,3,3,3,1,5,3,1,1,1,1,1,1,1,1,4,5,3,1,1,5,1,1,1,4,1,1,5,1,2,3,4,2,1,5,2,1,2,5,1,1,1,1,4,1,2,1,1,1,2,5,1,1,5,1,1,1,3,2,4,1,3,1,1,2,1,5,1,3,4,4,2,2,1,1,1,1,5,1,5,2)
+#Invoke-Simulation -StartingSchool $startingSchool -SimulationDays 256
