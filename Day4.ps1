@@ -202,7 +202,59 @@ function Invoke-Bingo {
     }
 }
 
+function Invoke-BingoLastWinningCard {
+    [CmdletBinding()]
+    param (
+        [string]$Path
+    )
+
+    process {
+        $bingoInputs = Get-BingoInputs -Path $Path
+
+        [string[]]$lastWinningCard = $null
+        [System.Collections.Generic.List[string]]$calledNumbers = [System.Collections.Generic.List[string]]::new()
+        [System.Collections.Generic.List[string[]]]$remainingBingoCards = [System.Collections.Generic.List[string[]]]::new($bingoInputs.BingoCards)
+        foreach ($calledNumber in $bingoInputs.NumbersToCall) {
+            $calledNumbers.Add($calledNumber) | Out-Null
+            Write-Verbose -Message "Calling Number $calledNumber"
+            Write-Verbose -Message "Called Numbers: $calledNumbers"
+
+            [System.Collections.Generic.Stack[int]]$indexesToRemove = [System.Collections.Generic.Stack[int]]::new()
+            for ($i = 0; $i -lt $remainingBingoCards.Count; $i++) {
+                $bingoCard = $remainingBingoCards[$i]
+                $cardIsWinner = Test-BingoCard -CalledNumbers $calledNumbers.ToArray() -BingoCard $bingoCard
+                if ($cardIsWinner.IsBingo) {
+                    $lastWinningCard = $bingoCard
+                    $indexesToRemove.Push($i)
+                }
+                Write-Verbose -Message ""
+                Write-Verbose -Message "Bingo Card is a Winner: $($cardIsWinner.IsBingo)"
+                Write-Verbose -Message "`r`n$(Out-BingoCard -CalledNumbers $calledNumbers.ToArray() -BingoCard $bingoCard)"
+            }
+
+            # Remove any winning cards from the pile to speed up the compare
+            while($indexesToRemove.Count -ne 0) {
+                $indexToRemove = $indexesToRemove.Pop()
+                Write-Verbose -Message "Removing at Index $indexToRemove"
+                $remainingBingoCards.RemoveAt($indexToRemove)
+            }
+
+            # Stop once we're out of bingo cards
+            if($remainingBingoCards.Count -eq 0) {
+                break
+            }
+        }
+
+        # When we drop out of the loop, the last winning card should be saved
+        $cardIsWinner = Test-BingoCard -CalledNumbers $calledNumbers.ToArray() -BingoCard $lastWinningCard
+        Write-Output -InputObject "Bingo Numbers: $($cardIsWinner.BingoNumbers); Last Called: $($cardIsWinner.LastCalled)"
+        Out-BingoCard -CalledNumbers $calledNumbers.ToArray() -BingoCard $lastWinningCard
+        Get-BingoScore -CalledNumbers $calledNumbers.ToArray() -BingoCard $lastWinningCard -LastCalledNumber $($cardIsWinner.LastCalled)
+    }
+}
+
 Remove-Item output.txt
 Start-Transcript -Path output.txt
 Invoke-Bingo -Path $PSScriptRoot\input.txt -Verbose
+Invoke-BingoLastWinningCard -Path $PSScriptRoot\input.txt -Verbose
 Stop-Transcript
