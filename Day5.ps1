@@ -112,6 +112,9 @@ $points = Get-Lines -Path $PSScriptRoot\input.txt
 $lineResult = Get-LineOverlap -Points $points
 Out-VisualizeLines -PopulatedPoints $lineResult.PopulatedPoints -Max_X $lineResult.Max_X -Max_Y $lineResult.Max_Y
 
+# At how many points do at least two lines overlap?
+($lineResult.PopulatedPoints.GetEnumerator() | Select-Object -ExpandProperty Value | Where-Object { $_ -gt 1 } | Measure-Object).Count
+
 # # Testing
 # Write-Output "Starting x1"
 # Get-LinePoints -Start $([System.Drawing.Point]::new(1, 1)) -End $([System.Drawing.Point]::new(1, 3))
