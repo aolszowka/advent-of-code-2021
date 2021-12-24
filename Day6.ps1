@@ -1,18 +1,7 @@
 # Copyright (c) 2021 Ace Olszowka
 # https://adventofcode.com/2021/day/6
 # How many lanternfish would there be after 80 days?
-
-function New-LanternFish {
-    [CmdletBinding()]
-    param (
-        [int]$RemainingDays
-    )
-    process {
-        [PSCustomObject]@{
-            RemainingDays = $RemainingDays
-        }
-    }
-}
+# How many lanternfish would there be after 256 days?
 
 function Invoke-Simulation {
     [CmdletBinding()]
@@ -24,52 +13,62 @@ function Invoke-Simulation {
         function Out-VisualizeSchool {
             [CmdletBinding()]
             param(
-                [PSCustomObject[]]$School
+                [System.Collections.Generic.Dictionary[int, long]]$School
             )
             process {
-                [string]::Join(',', $($School | Select-Object -ExpandProperty RemainingDays))
+                $fishInState = $School.GetEnumerator() | Where-Object { $_.Value -ne 0 } | ForEach-Object {
+                    for ($i = 0; $i -lt $_.Value; $i++) {
+                        $_.Key
+                    }
+                }
+                [string]::Join(',', $fishInState)
             }
         }
     }
     process {
-        [System.Collections.Generic.List[PSCustomObject]]$school = [System.Collections.Generic.List[PSCustomObject]]::new()
-        # Initialize our School
-        foreach ($fish in $StartingSchool) {
-            $school.Add($(New-LanternFish -RemainingDays $fish))
+        [System.Collections.Generic.Dictionary[int, long]]$school = [System.Collections.Generic.Dictionary[int, long]]::new()
+        # No Fish will be greater than 8 days old
+        for ($day = 0; $day -lt 9; $day++) {
+            $school.Add($day, 0) | Out-Null
         }
 
-        Write-Verbose -Message "Initial state: $(Out-VisualizeSchool -School $school.ToArray())"
+        # Initialize our School
+        foreach ($fish in $StartingSchool) {
+            $school[$fish]++
+        }
+
+        Write-Verbose -Message "Initial state: $(Out-VisualizeSchool -School $school)"
         for ($day = 1; $day -le $SimulationDays; $day++) {
-            $newFishToAdd = 0
-            foreach($fish in $school) {
-                if($fish.RemainingDays -eq 0) {
-                    $fish.RemainingDays = 6
-                    $newFishToAdd++
-                }
-                else {
-                    $fish.RemainingDays = $fish.RemainingDays - 1
-                }
+            $newFishToAdd = $school[0]
+            for ($i = 0; $i -lt 8; $i++) {
+                $school[$i] = $school[$i + 1]
             }
 
             # Add any new fish at the end of the day
-            for ($i = 0; $i -lt $newFishToAdd; $i++) {
-                $school.Add($(New-LanternFish -RemainingDays 8))
-            }
+            $school[8] = $newFishToAdd
+            $school[6] = $school[6] + $newFishToAdd
 
-            Write-Verbose -Message "After $("$day".PadLeft(2)) days: $(Out-VisualizeSchool -School $school.ToArray())"
+            if ($VerbosePreference) {
+                Write-Verbose -Message "After $("$day".PadLeft(2)) days: $(Out-VisualizeSchool -School $school)"
+            }
         }
 
-        Write-Verbose -Message "Total Number of Fish $($school.Count)"
-        $school.Count
+        $totalNumberOfFish = ($school.GetEnumerator() | Select-Object -ExpandProperty Value | Measure-Object -Sum).Sum
+        Write-Verbose -Message "Total Number of Fish $totalNumberOfFish"
+        $totalNumberOfFish
     }
 }
 
 # Sanity Check for Sample Input 18 Days: 26 Fish
-# Invoke-Simulation -StartingSchool @(3, 4, 3, 1, 2) -SimulationDays 16
+#Invoke-Simulation -StartingSchool @(3, 4, 3, 1, 2) -SimulationDays 18
 
 #Sanity Check for Sample Input 80 Days: 5934 Fish
 #Invoke-Simulation -StartingSchool @(3, 4, 3, 1, 2) -SimulationDays 80
 
+#Sanity Check for Sample Input 256 Days: 26984457539 Fish
+#Invoke-Simulation -StartingSchool @(3, 4, 3, 1, 2) -SimulationDays 256
+
 # Perform Actual Input 80 Days: ???
+# Perform Actual Input 256 Days: ???
 $startingSchool = @()
-Invoke-Simulation -StartingSchool $startingSchool -SimulationDays 80
+Invoke-Simulation -StartingSchool $startingSchool -SimulationDays 256
