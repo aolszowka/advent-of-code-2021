@@ -9,6 +9,7 @@ function Get-LinePoints {
         [System.Drawing.Point]$End
     )
     process {
+        # Vertical Line
         if ($End.X -eq $Start.X) {
             $diff_y = [Math]::Abs($End.Y - $Start.Y)
             $smallest_y = [Math]::Min($End.Y, $Start.Y)
@@ -16,6 +17,7 @@ function Get-LinePoints {
                 [System.Drawing.Point]::new($End.X, $smallest_y + $i)
             }
         }
+        # Horiztonal Line
         elseif ($End.Y -eq $Start.Y) {
             $diff_x = [Math]::Abs($Start.X - $End.X)
             $smallest_x = [Math]::Min($Start.X, $End.X)
@@ -23,8 +25,22 @@ function Get-LinePoints {
                 [System.Drawing.Point]::new($smallest_x + $i, $End.Y)
             }
         }
+        # Assume Diagonal Line
         else {
-            Write-Verbose -Message 'This method only supports straight lines'
+            if ($Start.X -gt $End.X) {
+                # Swap These
+                [System.Drawing.Point]$swap = $End
+                $End = $Start
+                $Start = $swap
+            }
+            $steps = $End.X - $Start.X
+            $slope = 1
+            if ($Start.Y -gt $End.Y) {
+                $slope = -1
+            }
+            for ($i = 0; $i -le $steps; $i++) {
+                [System.Drawing.Point]::new($Start.X + $i, $Start.Y + ($i * $slope))
+            }
         }
     }
 }
@@ -76,8 +92,8 @@ function Get-LineOverlap {
 
         [PSCustomObject]@{
             PopulatedPoints = $populatedPoints
-            Max_X = $max_x
-            Max_Y = $max_y
+            Max_X           = $max_x
+            Max_Y           = $max_y
         }
         $populatedPoints
     }
@@ -129,3 +145,11 @@ Out-VisualizeLines -PopulatedPoints $lineResult.PopulatedPoints -Max_X $lineResu
 # Get-LinePoints -Start $([System.Drawing.Point]::new(0, 9)) -End $([System.Drawing.Point]::new(2, 9))
 # Write-Output "Starting y2.1"
 # Get-LinePoints -End $([System.Drawing.Point]::new(0, 9)) -Start $([System.Drawing.Point]::new(2, 9))
+
+# Write-Output "Starting Diag Test 1"
+# Get-LinePoints -Start $([System.Drawing.Point]::new(1, 1)) -End $([System.Drawing.Point]::new(9, 9))
+# Write-Output "Starting Diag Test 1.1"
+# Get-LinePoints -End $([System.Drawing.Point]::new(1, 1)) -Start $([System.Drawing.Point]::new(9, 9))
+
+# Write-Output "Starting Diag Test 2"
+# Get-LinePoints -Start $([System.Drawing.Point]::new(5, 5)) -End $([System.Drawing.Point]::new(8, 2))
